@@ -27,6 +27,9 @@ class Window:
     def draw_line(self, line, fill_color):
         line.draw(self.canvas, fill_color)
 
+    def draw_cell(self, cell, fill_color):
+        cell.draw(self.canvas, fill_color)
+
 
 class Point:
     def __init__(self, x, y):
@@ -45,10 +48,40 @@ class Line:
         )
 
 
+class Cell:
+    def __init__(self, p1, p2):
+        self.p1 = p1
+        self.p2 = p2
+        self.has_top_wall = True
+        self.has_right_wall = True
+        self.has_bottom_wall = True
+        self.has_left_wall = True
+
+    def draw(self, canvas, fill_color):
+        if self.has_top_wall:
+            canvas.create_line(
+                self.p1.x, self.p1.y, self.p2.x, self.p1.y, fill=fill_color, width=2
+            )
+        if self.has_right_wall:
+            canvas.create_line(
+                self.p2.x, self.p1.y, self.p2.x, self.p2.y, fill=fill_color, width=2
+            )
+        if self.has_bottom_wall:
+            canvas.create_line(
+                self.p2.x, self.p2.y, self.p1.x, self.p2.y, fill=fill_color, width=2
+            )
+        if self.has_left_wall:
+            canvas.create_line(
+                self.p1.x, self.p2.y, self.p1.x, self.p1.y, fill=fill_color, width=2
+            )
+
+
 def main():
-    win = Window(800, 800)
-    win.draw_line(Line(Point(0, 0), Point(100, 100)), "red")
-    win.draw_line(Line(Point(100, 100), Point(200, 0)), "red")
+    win = Window(800, 600)
+    cell1 = Cell(Point(10, 10), Point(100, 100))
+    cell2 = Cell(Point(100, 10), Point(190, 100))
+    win.draw_cell(cell1, "white")
+    win.draw_cell(cell2, "white")
     win.wait_for_close()
 
 
