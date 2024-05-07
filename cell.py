@@ -1,3 +1,6 @@
+from graphics import *
+
+
 class Cell:
     def __init__(self, p1, p2, window):
         self.p1 = p1
@@ -26,3 +29,13 @@ class Cell:
             canvas.create_line(
                 self.p1.x, self.p2.y, self.p1.x, self.p1.y, fill=fill_color, width=2
             )
+
+    def draw_move(self, to_cell, undo=False):
+        line = Line(
+            Point(self.center.x, self.center.y),
+            Point(to_cell.center.x, to_cell.center.y),
+        )
+        fill_color = "red"
+        if undo:
+            fill_color = "gray"
+        line.draw(self.window.canvas, fill_color)
