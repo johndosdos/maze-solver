@@ -1,7 +1,8 @@
 class Cell:
-    def __init__(self, p1, p2):
+    def __init__(self, p1, p2, window):
         self.p1 = p1
         self.p2 = p2
+        self.window = window
         self.has_top_wall = True
         self.has_right_wall = True
         self.has_bottom_wall = True
