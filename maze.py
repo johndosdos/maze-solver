@@ -3,7 +3,9 @@ from graphics import Point
 
 
 class Maze:
-    def __init__(self, num_rows, num_cols, cell_size_x, cell_size_y):
+    def __init__(self, x1, y1, num_rows, num_cols, cell_size_x, cell_size_y):
+        self.x1 = x1
+        self.y1 = y1
         self.num_rows = num_rows
         self.num_cols = num_cols
         self.cell_size_x = cell_size_x
