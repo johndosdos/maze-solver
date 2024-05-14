@@ -11,13 +11,12 @@ class Maze:
         self.cell_size_x = cell_size_x
         self.cell_size_y = cell_size_y
         self.win = win
+        self.cells = []
 
     def create_cells(self):
-        self.cells = []
         for i in range(self.num_rows):
             rows = []
             for j in range(self.num_cols):
-                cols = []
                 p1 = Point(
                     self.x1 + (j * self.cell_size_x), self.y1 + (i * self.cell_size_y)
                 )
@@ -26,9 +25,10 @@ class Maze:
                     self.y1 + (i + 1) * self.cell_size_y,
                 )
                 cell = Cell(p1, p2, self.win)
-                cols.append(cell)
-                rows.append(cols)
+                rows.append(cell)
             self.cells.append(rows)
+
+        self.draw_cells()
 
     def draw_cell(self, i, j):
         pass
