@@ -30,8 +30,12 @@ class Maze:
 
         self.draw_cells()
 
-    def draw_cell(self, i, j):
-        pass
+    def draw_cells(self):
+        for row in self.cells:
+            for cell in row:
+                cell.draw(self.win.canvas, "white")
+                self.animate()
 
     def animate(self):
-        pass
+        self.win.redraw()
+        self.win.root.after(50)
