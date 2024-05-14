@@ -2,10 +2,10 @@ from graphics import *
 
 
 class Cell:
-    def __init__(self, p1, p2, window):
+    def __init__(self, p1, p2, win):
         self.p1 = p1
         self.p2 = p2
-        self.window = window
+        self.window = win
         self.center = Point((self.p1.x + self.p2.x) // 2, (self.p1.y + self.p2.y) // 2)
         self.has_top_wall = True
         self.has_right_wall = True
