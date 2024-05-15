@@ -11,22 +11,23 @@ class Cell:
         self.has_right_wall = True
         self.has_bottom_wall = True
         self.has_left_wall = True
+        self.wall_ids = {}
 
     def draw(self, canvas, fill_color):
         if self.has_top_wall:
-            canvas.create_line(
+            self.wall_ids["top"] = canvas.create_line(
                 self.p1.x, self.p1.y, self.p2.x, self.p1.y, fill=fill_color, width=2
             )
         if self.has_right_wall:
-            canvas.create_line(
+            self.wall_ids["right"] = canvas.create_line(
                 self.p2.x, self.p1.y, self.p2.x, self.p2.y, fill=fill_color, width=2
             )
         if self.has_bottom_wall:
-            canvas.create_line(
+            self.wall_ids["bottom"] = canvas.create_line(
                 self.p2.x, self.p2.y, self.p1.x, self.p2.y, fill=fill_color, width=2
             )
         if self.has_left_wall:
-            canvas.create_line(
+            self.wall_ids["left"] = canvas.create_line(
                 self.p1.x, self.p2.y, self.p1.x, self.p1.y, fill=fill_color, width=2
             )
 
