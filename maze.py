@@ -36,3 +36,18 @@ class Maze:
     def animate(self):
         self.win.redraw()
         self.win.root.after(50)
+
+    def break_entrance_and_exit(self):
+        entry_cell = self.cells[0][0]
+        exit_cell = self.cells[len(self.cells) - 1][self.num_cols - 1]
+
+        entry_cell.has_top_wall = False
+        self.delete_wall(entry_cell, "top")
+        exit_cell.has_bottom_wall = False
+        self.delete_wall(exit_cell, "bottom")
+
+        self.win.redraw()
+
+    def delete_wall(self, cell, wall_id):
+        self.win.canvas.delete(cell.wall_ids[wall_id])
+        del cell.wall_ids[wall_id]
