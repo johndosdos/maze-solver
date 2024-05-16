@@ -26,14 +26,11 @@ class Maze:
                 )
                 cell = Cell(p1, p2, self.win)
                 rows.append(cell)
+                self.draw_cell(cell)
             self.cells.append(rows)
 
-        self.draw_cells()
-
-    def draw_cells(self):
-        for row in self.cells:
-            for cell in row:
-                cell.draw(self.win.canvas, "white")
+    def draw_cell(self, cell, fill_color="white"):
+        cell.draw(self.win.canvas, fill_color)
                 self.animate()
 
     def animate(self):
