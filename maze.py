@@ -31,7 +31,7 @@ class Maze:
 
     def draw_cell(self, cell, fill_color="white"):
         cell.draw(self.win.canvas, fill_color)
-                self.animate()
+        self.animate()
 
     def animate(self):
         self.win.redraw()
