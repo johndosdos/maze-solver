@@ -4,16 +4,27 @@ from maze import *
 
 
 def main():
-    win = Window(800, 600)
-
-    x = 10
-    y = 10
-    num_rows = 5
-    num_cols = 5
-    cell_size_x = 50  # pixel
-    cell_size_y = 50  # pixel
-    maze = Maze(x, y, num_rows, num_cols, cell_size_x, cell_size_y, win)
+    num_rows = 10
+    num_cols = 10
+    cell_width = 50
+    cell_height = 50
+    maze_offset_x = 10
+    maze_offset_y = 10
+    win = Window(
+        (cell_width * num_cols) + 2 * maze_offset_x,
+        (cell_height * num_rows) + 2 * maze_offset_y,
+    )
+    maze = Maze(
+        maze_offset_x,
+        maze_offset_y,
+        num_rows,
+        num_cols,
+        cell_width,
+        cell_height,
+        win,
+    )
     maze.create_cells()
+    maze.break_entrance_and_exit()
 
     win.wait_for_close()
 
