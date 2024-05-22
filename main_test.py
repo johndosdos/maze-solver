@@ -6,8 +6,8 @@ from graphics import Window
 
 class Tests(unittest.TestCase):
     def test_cell_creation(self):
-        num_rows = 10
-        num_cols = 10
+        num_rows = 5
+        num_cols = 5
         cell_width = 50
         cell_height = 50
         maze_offset_x = 10
@@ -31,6 +31,7 @@ class Tests(unittest.TestCase):
         self.assertEqual(
             maze.cells[len(maze.cells) - 1][num_cols - 1].has_bottom_wall, False
         )
+        maze.break_walls_r(0, 0)
 
 
 if __name__ == "__main__":
