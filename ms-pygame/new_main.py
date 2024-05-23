@@ -12,6 +12,10 @@ window_size = ((cell_size[0] * maze_size[0]), (cell_size[1] * maze_size[1]))
 window = pygame.display.set_mode(window_size)
 window.fill((255, 255, 255))
 
+maze_surface = pygame.Surface(
+    ((int(window_size[0] * 0.8)), (int(window_size[1] * 0.8)))
+)
+
 
 while running:
     for event in pygame.event.get():
