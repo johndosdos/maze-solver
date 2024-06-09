@@ -2,6 +2,4 @@
 
 A simple maze generator and solver. Made using pygame.
 
-Preview:
-https://github.com/johndosdos/maze-solver/assets/128350391/7dabf82d-f210-4706-a049-50a17eb10e65
-
+![Screen Recording 2024-06-10 at 03 38 50 (1)](https://github.com/johndosdos/maze-solver/assets/128350391/baf7d038-9f82-4513-b1ac-c5cadfafb89b)
