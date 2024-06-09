@@ -8,25 +8,79 @@ class Window:
             (cell_height * num_rows),
             (cell_width * num_cols),
         )
-        self.window = pygame.display.set_mode((self.width, self.height))
-        self.maze_surface = pygame.Surface((self.height, self.width))
+
+        self.window = pygame.display.set_mode(
+            (self.width, self.height), pygame.RESIZABLE | pygame.SCALED
+        )
 
 
 class Cell:
-    def __init__(self, i, j, cell_height, cell_width):
+    def __init__(self, i, j, width, height, win):
         self.i = i
         self.j = j
-        self.height = cell_height
-        self.width = cell_width
+        self.width = width
+        self.height = height
+        self.win = win
 
-        self.has_top_wall = True
-        self.has_right_wall = True
-        self.has_bottom_wall = True
-        self.has_left_wall = True
-
+        self.walls = {"top": True, "right": True, "bottom": True, "left": True}
         self.visited = False
-
         self.neighbors = []
+
+    def paint_current_cell(self, color):
+        x = self.j * self.width
+        y = self.i * self.height
+
+        pygame.draw.rect(
+            self.win.window,
+            pygame.Color(color),
+            (x + 3, y + 3, self.width - 3, self.height - 3),
+        )
+
+    def draw(self, visited_color):
+        x = self.j * self.width
+        y = self.i * self.height
+
+        wall_color = "black"
+
+        if self.visited:
+            pygame.draw.rect(
+                self.win.window,
+                pygame.Color(visited_color),
+                pygame.Rect(x, y, self.width, self.height),
+            )
+
+        if self.walls["top"]:
+            pygame.draw.line(
+                self.win.window,
+                pygame.Color(wall_color),
+                (x, y),
+                (x + self.width, y),
+                3,
+            )
+        if self.walls["right"]:
+            pygame.draw.line(
+                self.win.window,
+                pygame.Color(wall_color),
+                (x + self.width, y),
+                (x + self.width, y + self.height),
+                3,
+            )
+        if self.walls["bottom"]:
+            pygame.draw.line(
+                self.win.window,
+                pygame.Color(wall_color),
+                (x + self.width, y + self.height),
+                (x, y + self.height),
+                3,
+            )
+        if self.walls["left"]:
+            pygame.draw.line(
+                self.win.window,
+                pygame.Color(wall_color),
+                (x, y + self.height),
+                (x, y),
+                3,
+            )
 
 
 class Maze:
@@ -37,86 +91,178 @@ class Maze:
         self.cell_width = cell_width
         self.win = window
 
-        self._cells = []
+        self.cells = []
         self._create_grid_array()
-        self._walk()
+        self._set_neighbors()
 
-    def generate(self):
-        self._draw_cells()
+    def solve(self, entry_cell, exit_cell, stack, backtrack_path):
+        for row in self.cells:
+            for cell in row:
+                if cell in backtrack_path:
+                    cell.draw("white")
+                else:
+                    cell.draw("green")
 
-    def _walk(self):
-        pass
+        self.paint_entry_and_exit(entry_cell, exit_cell)
 
-    def _draw_cells(self):
-        for i in range(len(self._cells)):
-            for j in range(len(self._cells[i])):
-                cell = self._cells[i][j]
+        if stack:
+            current = stack.pop()
+            current.visited = True
+            move_to_neighbor = False
 
-                x = j * cell.width
-                y = i * cell.height
+            if current == exit_cell:
+                current.draw("green")
+                pygame.display.update()
+                return True
 
-                if cell.has_top_wall:
-                    pygame.draw.line(
-                        self.win.maze_surface,
-                        (0, 0, 0),
-                        (x, y),
-                        (x + cell.width, y),
-                        1,
-                    )
-                if cell.has_right_wall:
-                    pygame.draw.line(
-                        self.win.maze_surface,
-                        (0, 0, 0),
-                        (x + cell.width, y),
-                        (x + cell.width, y + cell.height),
-                        1,
-                    )
-                if cell.has_bottom_wall:
-                    pygame.draw.line(
-                        self.win.maze_surface,
-                        (0, 0, 0),
-                        (x + cell.width, y + cell.height),
-                        (x, y + cell.height),
-                        1,
-                    )
-                if cell.has_left_wall:
-                    pygame.draw.line(
-                        self.win.maze_surface,
-                        (0, 0, 0),
-                        (x, y + cell.height),
-                        (x, y),
-                        1,
-                    )
+            current.paint_current_cell("orange")
 
-                if cell.visited:
-                    pygame.draw.rect(
-                        self.win.maze_surface,
-                        (128, 128, 128),
-                        pygame.Rect(x, y, cell.width, cell.height),
-                    )
+            neighbors = {
+                "top": self.cells[current.i - 1][current.j] if current.i > 0 else None,
+                "right": (
+                    self.cells[current.i][current.j + 1]
+                    if current.j < self.num_cols - 1
+                    else None
+                ),
+                "bottom": (
+                    self.cells[current.i + 1][current.j]
+                    if current.i < self.num_rows - 1
+                    else None
+                ),
+                "left": self.cells[current.i][current.j - 1] if current.j > 0 else None,
+            }
+
+            for direction, neighbor in neighbors.items():
+                if neighbor and not current.walls[direction] and not neighbor.visited:
+                    neighbor.visited = True
+                    stack.append(current)
+                    stack.append(neighbor)
+                    move_to_neighbor = True
+                    break
+
+            if not move_to_neighbor:
+                backtrack_path.append(current)
+
+            # open_neighbors = []
+
+            # for wall, is_open in current.walls.items():
+            #     if is_open:
+            #         continue
+
+            #     if wall == "top":
+            #         neighbor = self.cells[current.i - 1][current.j]
+            #         if not neighbor.visited:
+            #             open_neighbors.append(neighbor)
+            #     if wall == "right":
+            #         neighbor = self.cells[current.i][current.j + 1]
+            #         if not neighbor.visited:
+            #             open_neighbors.append(neighbor)
+            #     if wall == "bottom":
+            #         neighbor = self.cells[current.i + 1][current.j]
+            #         if not neighbor.visited:
+            #             open_neighbors.append(neighbor)
+            #     if wall == "left":
+            #         neighbor = self.cells[current.i][current.j - 1]
+            #         if not neighbor.visited:
+            #             open_neighbors.append(neighbor)
+
+            # if open_neighbors:
+            #     stack.append(current)
+            #     neighbor = random.choice(open_neighbors)
+            #     stack.append(neighbor)
+
+        pygame.display.update()
+        return False
+
+    def generate(self, entry_cell, exit_cell, stack):
+        for row in self.cells:
+            for cell in row:
+                cell.draw("white")
+
+        if stack:
+            current = stack.pop()
+            current.paint_current_cell("orange")
+
+            self.paint_entry_and_exit(entry_cell, exit_cell)
+
+            unvisited_neighbors = [
+                neighbor for neighbor in current.neighbors if not neighbor.visited
+            ]
+
+            if unvisited_neighbors:
+                stack.append(current)
+                neighbor = random.choice(unvisited_neighbors)
+                self.break_walls(current, neighbor)
+                neighbor.visited = True
+                stack.append(neighbor)
+
+        pygame.display.update()
+
+    def paint_entry_and_exit(self, entry_cell, exit_cell):
+        if entry_cell is None or exit_cell is None:
+            return -1
+
+        pygame.draw.rect(
+            self.win.window,
+            pygame.Color("green"),
+            pygame.Rect(
+                (entry_cell.i * entry_cell.height) + 2,
+                (entry_cell.j * entry_cell.width) + 2,
+                entry_cell.width - 3,
+                entry_cell.height - 3,
+            ),
+        )
+        # print(entry_rect)
+
+        pygame.draw.rect(
+            self.win.window,
+            pygame.Color("green"),
+            pygame.Rect(
+                (exit_cell.i * exit_cell.height) + 2,
+                (exit_cell.j * exit_cell.width) + 2,
+                exit_cell.width - 3,
+                exit_cell.height - 3,
+            ),
+        )
+        # print(exit_rect)
+
+    def break_walls(self, current, neighbor):
+        dy = current.i - neighbor.i
+        dx = current.j - neighbor.j
+
+        if dy == -1:
+            current.walls["bottom"] = False
+            neighbor.walls["top"] = False
+        elif dy == 1:
+            current.walls["top"] = False
+            neighbor.walls["bottom"] = False
+
+        if dx == -1:
+            current.walls["right"] = False
+            neighbor.walls["left"] = False
+        elif dx == 1:
+            current.walls["left"] = False
+            neighbor.walls["right"] = False
 
     def _create_grid_array(self):
         for i in range(self.num_rows):
             row = []
             for j in range(self.num_cols):
-                cell = Cell(i, j, self.cell_height, self.cell_width)
-                self._set_neighbors(cell)
-                # if j > 0:
-                #     cell.has_left_wall = row[j - 1].has_right_wall
-                # if i > 0:
-                #     cell.has_top_wall = self._cells[i - 1][j].has_bottom_wall
+                cell = Cell(i, j, self.cell_height, self.cell_width, self.win)
                 row.append(cell)
-            self._cells.append(row)
+            self.cells.append(row)
 
-    def _set_neighbors(self, cell):
-        if cell.i > 0:
-            cell.neighbors.append((cell.i - 1, cell.j))
-        if cell.i < self.num_rows - 1:
-            cell.neighbors.append((cell.i + 1, cell.j))
-        if cell.j > 0:
-            cell.neighbors.append((cell.i, cell.j - 1))
-        if cell.j < self.num_cols - 1:
-            cell.neighbors.append((cell.i, cell.j + 1))
+    def _set_neighbors(self):
+        for row in self.cells:
+            for cell in row:
+                if cell.i > 0:
+                    cell.neighbors.append(self.cells[cell.i - 1][cell.j])
+                if cell.i < self.num_rows - 1:
+                    cell.neighbors.append(self.cells[cell.i + 1][cell.j])
+                if cell.j > 0:
+                    cell.neighbors.append(self.cells[cell.i][cell.j - 1])
+                if cell.j < self.num_cols - 1:
+                    cell.neighbors.append(self.cells[cell.i][cell.j + 1])
 
 
 def main():
@@ -124,10 +270,22 @@ def main():
     clock = pygame.time.Clock()
     running = True
 
-    cell_height, cell_width = 50, 50
-    num_rows, num_cols = 5, 5
+    cell_height, cell_width = 20, 20
+    num_rows, num_cols = 30, 30
     win = Window(num_rows, num_cols, cell_height, cell_width)
     maze = Maze(num_rows, num_cols, cell_height, cell_width, win)
+    is_maze_generated = False
+    is_maze_solved = False
+
+    entry_cell = maze.cells[0][0]
+    exit_cell = maze.cells[num_rows - 1][num_cols - 1]
+
+    stack = []
+    current = entry_cell
+    current.visited = True
+    stack.append(current)
+
+    backtrack_path = []
 
     while running:
         for event in pygame.event.get():
@@ -135,23 +293,33 @@ def main():
                 running = False
 
         # clear screen
-        win.window.fill((255, 255, 255))
-        win.maze_surface.fill((255, 255, 255))
 
-        # render
-        maze.generate()
+        # solve maze
+        if is_maze_generated:
+            # pass
+            if not is_maze_solved:
+                is_maze_solved = maze.solve(
+                    entry_cell, exit_cell, stack, backtrack_path
+                )
+            else:
+                is_maze_solved = True
 
-        # display to the canvas
-        win.window.blit(
-            win.maze_surface,
-            (
-                ((win.height - win.maze_surface.get_height()) // 2),
-                ((win.width - win.maze_surface.get_width()) // 2),
-            ),
-        )
+        # generate maze
+        else:
+            win.window.fill(pygame.Color("black"))
+            maze.generate(entry_cell, exit_cell, stack)
 
-        pygame.display.update()
-        clock.tick(30)
+            if not stack:
+                is_maze_generated = True
+                stack.append(entry_cell)
+
+                for row in maze.cells:
+                    for cell in row:
+                        cell.visited = False
+
+        # update screen
+        # pygame.display.flip()
+        clock.tick(60)
 
     pygame.quit()
 
