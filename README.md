@@ -2,6 +2,7 @@
 
 A simple maze generator and solver. Made using pygame.
 
+
 To run the program, clone the repo and run 
 
 ```python maze_solver.py```
